@@ -1,19 +1,14 @@
 {
-  "2a4d6bb0": [
+  "d6f7efc5": [
     {
-      "timestamp": "2026-02-24T16:08:51.503952",
-      "user": "hello",
-      "bot": "Hello! It's nice to meet you"
-    },
-    {
-      "timestamp": "2026-02-24T16:09:06.463090",
-      "user": "nice to meet you to",
+      "timestamp": "2026-02-24T18:25:51.185130",
+      "user": "cd c:\\Users\\1973b\\zpa\\Projects\\manufacturing\\chatbot\\core_chat_service ; pip install -r requirements.txt --quiet",
       "bot": "That's interesting, tell me more"
     },
     {
-      "timestamp": "2026-02-24T16:09:15.756638",
-      "user": "how are you",
-      "bot": "I'm doing great, thanks for asking!"
+      "timestamp": "2026-02-24T18:26:01.481128",
+      "user": "echo \"Instalaci\u00f3n completada\" ; sleep 5",
+      "bot": "I see. Could you elaborate?"
     }
   ]
 }

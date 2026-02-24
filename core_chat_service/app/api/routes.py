@@ -2,7 +2,9 @@
 Rutas de la API REST
 """
 import uuid
-from fastapi import APIRouter, HTTPException
+from datetime import timedelta
+from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy.orm import Session
 from ..config import settings
 from ..models import (
     ChatRequest,
@@ -12,6 +14,21 @@ from ..models import (
     TenantStatsResponse,
     HealthResponse,
 )
+from ..auth import (
+    create_access_token,
+    Token,
+    TenantRegister,
+    TenantLogin,
+    get_current_tenant,
+)
+from ..auth.schemas import AuthResponseSuccess, AuthResponseError
+from ..db import (
+    register_tenant,
+    verify_tenant_credentials,
+    tenant_exists,
+    get_db,
+    init_db,
+)
 from ..services import TenantService
 
 # Instancia global del servicio
@@ -19,6 +36,106 @@ tenant_service = TenantService(storage_dir=settings.storage_dir)
 
 router = APIRouter()
 
+
+# ============================================================================
+# AUTENTICACIÓN (Fase 2)
+# ============================================================================
+
+@router.post(
+    "/auth/register",
+    response_model=AuthResponseSuccess,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Authentication"],
+    responses={400: {"model": AuthResponseError}}
+)
+async def register_tenant_endpoint(request: TenantRegister):
+    """
+    Registra un nuevo tenant
+    
+    - **tenant_id**: ID único del tenant (3-255 chars)
+    - **password**: Contraseña (mín 8 chars)
+    - **name**: Nombre descriptivo (opcional)
+    
+    Retorna JWT token para usar en siguientes requests
+    """
+    # Validar que tenant no existe
+    if tenant_exists(request.tenant_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Tenant '{request.tenant_id}' ya existe"
+        )
+    
+    # Registrar tenant
+    success = register_tenant(
+        tenant_id=request.tenant_id,
+        password=request.password,
+        name=request.name
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error al registrar tenant"
+        )
+    
+    # Crear token
+    access_token = create_access_token(
+        tenant_id=request.tenant_id,
+        expires_delta=timedelta(hours=24)
+    )
+    
+    return AuthResponseSuccess(
+        message=f"Tenant '{request.tenant_id}' registrado exitosamente",
+        data=Token(
+            access_token=access_token,
+            tenant_id=request.tenant_id,
+            expires_in=86400  # 24 horas
+        )
+    )
+
+
+@router.post(
+    "/auth/login",
+    response_model=AuthResponseSuccess,
+    tags=["Authentication"],
+    responses={401: {"model": AuthResponseError}}
+)
+async def login_tenant_endpoint(request: TenantLogin):
+    """
+    Login de tenant y obtención de JWT token
+    
+    - **tenant_id**: ID del tenant
+    - **password**: Contraseña
+    
+    Retorna JWT token válido por 24 horas
+    """
+    # Verificar credenciales
+    if not verify_tenant_credentials(request.tenant_id, request.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Crear token
+    access_token = create_access_token(
+        tenant_id=request.tenant_id,
+        expires_delta=timedelta(hours=24)
+    )
+    
+    return AuthResponseSuccess(
+        message=f"Login exitoso para '{request.tenant_id}'",
+        data=Token(
+            access_token=access_token,
+            tenant_id=request.tenant_id,
+            expires_in=86400  # 24 horas
+        )
+    )
+
+
+# ============================================================================
+# HEALTH & PROTECTED ENDPOINTS
+# ============================================================================
 
 @router.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health():

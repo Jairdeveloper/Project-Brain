@@ -118,6 +118,77 @@ Response:
 }
 ```
 
+## Autenticación JWT (Fase 2)
+
+La API ahora soporta autenticación JWT para mayor seguridad y aislamiento de tenants.
+
+### Registro de Tenant
+
+```bash
+POST /auth/register
+Content-Type: application/json
+
+{
+  "tenant_id": "acme-corp",
+  "password": "SecurePassword123",
+  "name": "ACME Corporation"
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "message": "Tenant 'acme-corp' registrado exitosamente",
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "token_type": "bearer",
+    "tenant_id": "acme-corp",
+    "expires_in": 86400
+  }
+}
+```
+
+### Login
+
+```bash
+POST /auth/login
+Content-Type: application/json
+
+{
+  "tenant_id": "acme-corp",
+  "password": "SecurePassword123"
+}
+```
+
+Response: (igual que registro)
+
+### Uso del Token
+
+Agrega el token en el header `Authorization`:
+
+```bash
+curl -X GET http://localhost:8001/api/v1/chat/acme-corp \
+  -H "Authorization: Bearer <your-jwt-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello"}'
+```
+
+### Tenant Demo
+
+Para testing, existe un tenant demo pre-configurado:
+- **tenant_id**: `demo`
+- **password**: `demo1234`
+
+```bash
+curl -X POST http://localhost:8001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenant_id": "demo",
+    "password": "demo1234"
+  }'
+```
+
 ### Session History
 
 ```bash
