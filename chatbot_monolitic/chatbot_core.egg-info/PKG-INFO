@@ -1,0 +1,35 @@
+Metadata-Version: 2.4
+Name: chatbot-core
+Version: 2.1
+Summary: Librería modular para ChatBot con NLP, Storage, LLM Fallback
+Author: ChatBot Team
+Author-email: team@chatbot.dev
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8
+Requires-Dist: sentence-transformers>=2.0.0
+Provides-Extra: api
+Requires-Dist: fastapi>=0.104.0; extra == "api"
+Requires-Dist: uvicorn[standard]>=0.24.0; extra == "api"
+Provides-Extra: llm
+Requires-Dist: openai>=1.0.0; extra == "llm"
+Requires-Dist: requests>=2.31.0; extra == "llm"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: black>=22.0; extra == "dev"
+Requires-Dist: flake8>=4.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: license
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

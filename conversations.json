@@ -1,0 +1,19 @@
+{
+  "2a4d6bb0": [
+    {
+      "timestamp": "2026-02-24T16:08:51.503952",
+      "user": "hello",
+      "bot": "Hello! It's nice to meet you"
+    },
+    {
+      "timestamp": "2026-02-24T16:09:06.463090",
+      "user": "nice to meet you to",
+      "bot": "That's interesting, tell me more"
+    },
+    {
+      "timestamp": "2026-02-24T16:09:15.756638",
+      "user": "how are you",
+      "bot": "I'm doing great, thanks for asking!"
+    }
+  ]
+}
